@@ -5,32 +5,59 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.sidorykp.sandbox.vaadin.domain.Person;
 import com.sidorykp.sandbox.vaadin.ui.BasicCrudView;
 
 import com.vaadin.Application;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
+import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Application's "main" class
  */
 @SuppressWarnings("serial")
-public class MyVaadinApplication extends Application {
+public class MyVaadinApplication extends Application implements HttpServletRequestListener {
 
 	public static final String PERSISTENCE_UNIT = "com.sidorykp.sandbox.vaadin";
 
+    protected EntityManagerPerRequestHelper emHelper;
+
+    protected static final Logger log = LoggerFactory.getLogger(MyVaadinApplication.class);
+
 	@Override
 	public void init() {
+        log.debug("init");
+        emHelper = new EntityManagerPerRequestHelper();
 		setMainWindow(new AutoCrudViews());
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
+        log.debug("requestStart");
+        if (emHelper != null) {
+            emHelper.requestStart();
+        }
+    }
+
+    @Override
+    public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
+        if (emHelper != null) {
+            emHelper.requestEnd();
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
 	class AutoCrudViews extends Window {
 		
 		public AutoCrudViews() {
@@ -64,7 +91,7 @@ public class MyVaadinApplication extends Application {
 			for (EntityType<?> entityType : entities) {
 				Class<?> javaType = entityType.getJavaType();
 				BasicCrudView view = new BasicCrudView(javaType,
-						PERSISTENCE_UNIT);
+						PERSISTENCE_UNIT, emHelper);
 				navTree.addItem(view);
 				navTree.setItemCaption(view, view.getCaption());
 				navTree.setChildrenAllowed(view, false);

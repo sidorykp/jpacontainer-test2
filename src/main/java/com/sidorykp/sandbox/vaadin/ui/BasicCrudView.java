@@ -7,6 +7,7 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.fieldfactory.FieldFactory;
 import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
+import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -48,10 +49,12 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 	private Button deleteButton;
 	private Panel panel;
 	private final String persistenceUnit;
+    protected EntityManagerPerRequestHelper emHelper;
 
-	public BasicCrudView(Class<T> entityClass, final String persistenceUnit) {
+	public BasicCrudView(Class<T> entityClass, final String persistenceUnit, EntityManagerPerRequestHelper emHelper) {
 		this.entityClass = entityClass;
 		this.persistenceUnit = persistenceUnit;
+        this.emHelper = emHelper;
 		setSizeFull();
 		initContainer();
 		initFieldFactory();
@@ -154,6 +157,7 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
         ep.setEntitiesDetached(false);
         container = new JPAContainer<T>(getEntityClass());
         container.setEntityProvider(ep);
+        emHelper.addContainer(container);
 		table = new Table(null, container);
 	}
 
