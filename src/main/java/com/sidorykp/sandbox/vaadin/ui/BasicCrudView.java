@@ -8,6 +8,7 @@ import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.fieldfactory.FieldFactory;
 import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
+import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -63,6 +64,7 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 
 	protected void initFieldFactory() {
 		fieldFactory = new FieldFactory();
+        fieldFactory.setEntityManagerPerRequestHelper(emHelper);
 	}
 
 	protected FieldFactory getFieldFactory() {
@@ -154,9 +156,12 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 	protected void initContainer() {
         EntityManager em = JPAContainerFactory.createEntityManagerForPersistenceUnit(persistenceUnit);
         EntityProvider<T> ep = new MutableLocalEntityProvider<T>(getEntityClass(), em);
-        ep.setEntitiesDetached(false);
+        ep.setLazyLoadingDelegate(new HibernateLazyLoadingDelegate());
         container = new JPAContainer<T>(getEntityClass());
         container.setEntityProvider(ep);
+        // NOTE should be used when multiple users use the application
+        container.setContainsIdFiresItemSetChangeIfNotFound(true);
+        container.removeContainerProperty("version");
         emHelper.addContainer(container);
 		table = new Table(null, container);
 	}

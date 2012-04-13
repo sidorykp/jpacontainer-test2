@@ -7,6 +7,7 @@
     <persistence-unit name="com.sidorykp.sandbox.vaadin">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         <class>com.sidorykp.sandbox.vaadin.domain.Person</class>
+        <class>com.sidorykp.sandbox.vaadin.domain.AddressEntity</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>

@@ -9,14 +9,16 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Version
+    private int version;
 
     private String firstName;
     private String lastName;
     private String phoneNumber;
     @ManyToOne
     private Person boss;
-    @ElementCollection
-    private Set<Address> addresses;
+    @OneToMany(mappedBy = "person")
+    private Set<AddressEntity> addresses;
 
     public Long getId() {
         return id;
@@ -24,6 +26,15 @@ public class Person {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public String getFirstName() {
@@ -58,11 +69,11 @@ public class Person {
         this.boss = boss;
     }
 
-    public Set<Address> getAddresses() {
+    public Set<AddressEntity> getAddresses() {
         return addresses;
     }
 
-    public void setAddresses(Set<Address> addresses) {
+    public void setAddresses(Set<AddressEntity> addresses) {
         this.addresses = addresses;
     }
     
