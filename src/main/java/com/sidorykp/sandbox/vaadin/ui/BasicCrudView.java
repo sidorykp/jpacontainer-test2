@@ -157,7 +157,7 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 	protected void initContainer() {
         EntityManager em = JPAContainerFactory.createEntityManagerForPersistenceUnit(persistenceUnit);
         EntityProvider<T> ep = new MutableLocalEntityProvider<T>(getEntityClass(), em);
-        // NOTE it REALLY works (I just could not make it work with a shared PersistenceContext)
+        // NOTE it REALLY works
         ep.setLazyLoadingDelegate(new HibernateLazyLoadingDelegate());
         container = new JPAContainer<T>(getEntityClass());
         container.setEntityProvider(ep);
