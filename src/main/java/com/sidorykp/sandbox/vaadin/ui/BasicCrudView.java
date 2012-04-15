@@ -2,6 +2,7 @@ package com.sidorykp.sandbox.vaadin.ui;
 
 import java.util.Arrays;
 
+import com.sidorykp.sandbox.vaadin.domain.AddressEntity;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
@@ -63,8 +64,8 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 	}
 
 	protected void initFieldFactory() {
-		fieldFactory = new FieldFactory();
-        fieldFactory.setEntityManagerPerRequestHelper(emHelper);
+		fieldFactory = new FieldFactory(emHelper);
+        fieldFactory.setVisibleProperties(AddressEntity.class, "street", "zipCode", "city");
 	}
 
 	protected FieldFactory getFieldFactory() {
@@ -156,6 +157,7 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 	protected void initContainer() {
         EntityManager em = JPAContainerFactory.createEntityManagerForPersistenceUnit(persistenceUnit);
         EntityProvider<T> ep = new MutableLocalEntityProvider<T>(getEntityClass(), em);
+        // NOTE it REALLY works (I just could not make it work with a shared PersistenceContext)
         ep.setLazyLoadingDelegate(new HibernateLazyLoadingDelegate());
         container = new JPAContainer<T>(getEntityClass());
         container.setEntityProvider(ep);

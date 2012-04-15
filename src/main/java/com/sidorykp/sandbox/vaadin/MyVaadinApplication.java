@@ -8,6 +8,7 @@ import javax.persistence.metamodel.Metamodel;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sidorykp.sandbox.vaadin.domain.AddressEntity;
 import com.sidorykp.sandbox.vaadin.domain.Person;
 import com.sidorykp.sandbox.vaadin.ui.BasicCrudView;
 
@@ -38,6 +39,8 @@ public class MyVaadinApplication extends Application implements HttpServletReque
 	@Override
 	public void init() {
         log.debug("init");
+        // TODO trace emHelper executions with Byteman in order to confirm that it really works
+        // TODO call emHelper.removeContainer() when sessions expire
         emHelper = new EntityManagerPerRequestHelper();
 		setMainWindow(new AutoCrudViews());
 	}
@@ -52,6 +55,7 @@ public class MyVaadinApplication extends Application implements HttpServletReque
 
     @Override
     public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
+        log.debug("requestEnd");
         if (emHelper != null) {
             emHelper.requestEnd();
         }
@@ -98,7 +102,10 @@ public class MyVaadinApplication extends Application implements HttpServletReque
 				if(javaType == Person.class) {
 					view.setVisibleTableProperties("firstName","lastName", "boss");
 					view.setVisibleFormProperties("firstName","lastName", "phoneNumber", "addresses", "boss");
-				}
+				} else if (javaType == AddressEntity.class) {
+                    view.setVisibleTableProperties("id", "street", "zipCode", "city");
+                    view.setVisibleFormProperties("person", "street", "zipCode", "city");
+                }
 
 			}
 
